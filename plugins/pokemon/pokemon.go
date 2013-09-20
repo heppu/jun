@@ -1,7 +1,7 @@
-package plugins
+package pokemon
 
 import (
-	"github.com/FSX/jun"
+	"github.com/FSX/jun/irc"
 	"math/rand"
 	"strings"
 	"time"
@@ -64,11 +64,11 @@ var quotes []string = []string{
 	"“There's an ongoing debate in the academic community as to whether these Pidgey represent evolution, devolution, or some mutated strain.” — Prof. Oak",
 }
 
-func PokemonQuotes(j *jun.Jun) {
+func PokemonQuotes(j *irc.Jun) {
 	rand.Seed(time.Now().UnixNano())
 	l := len(quotes)
 
-	j.AddCallback("PRIVMSG", func(message *jun.Message) {
+	j.AddCallback("PRIVMSG", func(message *irc.Message) {
 		if strings.HasPrefix(message.Final, "!pokemon") {
 			j.Privmsg(message.Arguments[0], quotes[rand.Intn(l)])
 		}

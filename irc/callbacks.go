@@ -1,4 +1,4 @@
-package jun
+package irc
 
 type Callback func(*Message)
 

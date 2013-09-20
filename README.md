@@ -5,7 +5,8 @@ Another IRC bot.
 
 Install with:
 
-    go install github.com/FSX/jun
+    go get github.com/FSX/jun/irc
+    go get github.com/FSX/jun/plugins/pokemon
 
 And run the example with:
 

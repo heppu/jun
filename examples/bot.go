@@ -2,24 +2,24 @@ package main
 
 import (
 	"crypto/tls"
-	"github.com/FSX/jun"
-	"github.com/FSX/jun/plugins"
+	"github.com/FSX/jun/irc"
+	"github.com/FSX/jun/plugins/pokemon"
 	"os"
 	"os/signal"
 )
 
 func main() {
-	e := jun.New(
+	e := irc.New(
 		"irc.rizon.net:9999",
 		"Somerandomnickname",
 		[]string{"#somerandomchannel"},
 		&tls.Config{InsecureSkipVerify: true},
 	)
-	plugins.PokemonQuotes(e)
+	pokemon.PokemonQuotes(e)
 	e.Connect()
 
 	// Graceful shutdown for Ctrl+C
-	go func(e *jun.Jun) {
+	go func(e *irc.Jun) {
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, os.Interrupt)
 		<-c
