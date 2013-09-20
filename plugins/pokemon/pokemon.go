@@ -64,7 +64,7 @@ var quotes []string = []string{
 	"“There's an ongoing debate in the academic community as to whether these Pidgey represent evolution, devolution, or some mutated strain.” — Prof. Oak",
 }
 
-func PokemonQuotes(j *irc.Jun) {
+func PokemonQuotes(j *irc.Bot) {
 	rand.Seed(time.Now().UnixNano())
 	l := len(quotes)
 

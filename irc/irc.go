@@ -7,7 +7,7 @@ import (
 	"net"
 )
 
-type Jun struct {
+type Bot struct {
 	Address   string
 	Nickname  string
 	Channels  []string
@@ -20,8 +20,8 @@ type Jun struct {
 	receive    chan *Message // Messages from the server
 }
 
-func New(address, nickname string, channels []string, tlsConfig *tls.Config) *Jun {
-	return &Jun{
+func New(address, nickname string, channels []string, tlsConfig *tls.Config) *Bot {
+	return &Bot{
 		Address:    address,
 		Nickname:   nickname,
 		Channels:   channels,
@@ -34,7 +34,7 @@ func New(address, nickname string, channels []string, tlsConfig *tls.Config) *Ju
 	}
 }
 
-func (j *Jun) callbackLoop() {
+func (j *Bot) callbackLoop() {
 	for message := range j.receive {
 		if callbacks, ok := j.callbacks[message.Command]; ok {
 			for _, cb := range callbacks {
@@ -44,7 +44,7 @@ func (j *Jun) callbackLoop() {
 	}
 }
 
-func (j *Jun) receiveLoop() {
+func (j *Bot) receiveLoop() {
 	var message *Message
 	reader := bufio.NewReader(j.connection)
 
@@ -61,7 +61,7 @@ func (j *Jun) receiveLoop() {
 	}
 }
 
-func (j *Jun) sendLoop() {
+func (j *Bot) sendLoop() {
 	for data := range j.send {
 		if _, err := j.connection.Write([]byte(data + "\r\n")); err != nil {
 			log.Printf("\x1b[31m!!\x1b[0m %s\n", err)
@@ -71,7 +71,7 @@ func (j *Jun) sendLoop() {
 	}
 }
 
-func (j *Jun) Connect() (err error) {
+func (j *Bot) Connect() (err error) {
 	j.send = make(chan string, 32)
 	j.receive = make(chan *Message, 32)
 
@@ -99,17 +99,9 @@ func (j *Jun) Connect() (err error) {
 	return
 }
 
-func (j *Jun) Disconnect() {
+func (j *Bot) Disconnect() {
 	j.connection.Close()
 	close(j.send)
 	close(j.receive)
 	j.Quit <- true
-}
-
-func (j *Jun) AddCallback(name string, cb Callback) {
-	if _, ok := j.callbacks[name]; ok {
-		j.callbacks[name] = append(j.callbacks[name], cb)
-	} else {
-		j.callbacks[name] = []Callback{cb}
-	}
 }

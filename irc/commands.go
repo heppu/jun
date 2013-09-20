@@ -2,34 +2,34 @@ package irc
 
 import "fmt"
 
-func (j *Jun) Raw(data string) {
+func (j *Bot) Raw(data string) {
 	j.send <- data
 }
 
-func (j *Jun) User(username, realname string) {
+func (j *Bot) User(username, realname string) {
 	j.send <- fmt.Sprintf("USER %s +iw * :%s", username, realname)
 }
 
-func (j *Jun) Nick(nickname string) {
+func (j *Bot) Nick(nickname string) {
 	j.send <- fmt.Sprintf("NICK %s", nickname)
 }
 
-func (j *Jun) Join(channel string) {
+func (j *Bot) Join(channel string) {
 	j.send <- fmt.Sprintf("JOIN %s", channel)
 }
 
-func (j *Jun) Names(channel string) {
+func (j *Bot) Names(channel string) {
 	j.send <- fmt.Sprintf("NAMES %s", channel)
 }
 
-func (j *Jun) Pong(payload string) {
+func (j *Bot) Pong(payload string) {
 	j.send <- fmt.Sprintf("PONG :%s", payload)
 }
 
-func (j *Jun) Privmsg(target, message string) {
+func (j *Bot) Privmsg(target, message string) {
 	j.send <- fmt.Sprintf("PRIVMSG %s :%s", target, message)
 }
 
-func (j *Jun) QuitMsg() {
+func (j *Bot) QuitMsg() {
 	j.send <- fmt.Sprintf("QUIT")
 }
