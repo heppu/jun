@@ -75,6 +75,11 @@ func (j *Bot) Connect() (err error) {
 	j.send = make(chan string, 32)
 	j.receive = make(chan *Message, 32)
 
+	j.AddCallback("266", j.raw266)
+	j.AddCallback("433", j.nickInUse)
+	j.AddCallback("PING", j.pingBack)
+	j.AddCallback("NICK", j.nickChange)
+
 	if j.TlsConfig != nil {
 		j.connection, err = tls.Dial("tcp", j.Address, j.TlsConfig)
 	} else {
@@ -87,11 +92,6 @@ func (j *Bot) Connect() (err error) {
 	go j.sendLoop()
 	go j.receiveLoop()
 	go j.callbackLoop()
-
-	j.AddCallback("266", j.raw266)
-	j.AddCallback("433", j.nickInUse)
-	j.AddCallback("PING", j.pingBack)
-	j.AddCallback("NICK", j.nickChange)
 
 	j.User(j.Nickname, j.Nickname)
 	j.Nick(j.Nickname)
