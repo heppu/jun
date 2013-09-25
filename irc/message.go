@@ -49,13 +49,13 @@ func ParseMessage(line string) *Message {
 // TODO: Maybe also extract user rank (~&@%+)?
 func ParsePrefix(source string) (server_or_nick, user, host string) {
 	if n := strings.IndexRune(source, '!'); n != -1 {
-		server_or_nick = source[:n]
+		server_or_nick = source[1:n]
 		if m := strings.IndexRune(source, '@'); m != -1 {
 			user = source[n+1 : m]
 			host = source[m+1:]
 		}
 	} else {
-		server_or_nick = source
+		server_or_nick = source[1:]
 	}
 
 	return
