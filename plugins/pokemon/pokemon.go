@@ -1,10 +1,12 @@
 package pokemon
 
 import (
-	"github.com/FSX/jun/irc"
 	"math/rand"
 	"strings"
 	"time"
+
+	"github.com/FSX/jun/irc"
+	xirc "github.com/sorcix/irc"
 )
 
 // https://en.wikiquote.org/wiki/Pok%C3%A9mon
@@ -68,9 +70,9 @@ func PokemonQuotes(j *irc.Bot) {
 	rand.Seed(time.Now().UnixNano())
 	l := len(quotes)
 
-	j.AddCallback("PRIVMSG", func(message *irc.Message) {
-		if strings.HasPrefix(message.Final, "!pokemon") {
-			j.Privmsg(message.Arguments[0], quotes[rand.Intn(l)])
+	j.AddCallback("PRIVMSG", func(message *xirc.Message) {
+		if strings.HasPrefix(message.Trailing, "!pokemon") {
+			j.Privmsg(message.Params[0], quotes[rand.Intn(l)])
 		}
 	})
 }

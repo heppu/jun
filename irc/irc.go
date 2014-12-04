@@ -5,6 +5,8 @@ import (
 	"crypto/tls"
 	"log"
 	"net"
+
+	xirc "github.com/sorcix/irc"
 )
 
 type Bot struct {
@@ -16,8 +18,8 @@ type Bot struct {
 	callbacks map[string][]Callback
 
 	connection net.Conn
-	send       chan string   // Messages to the server
-	receive    chan *Message // Messages from the server
+	send       chan string        // Messages to the server
+	receive    chan *xirc.Message // Messages from the server
 }
 
 func New(address, nickname string, channels []string, tlsConfig *tls.Config) *Bot {
@@ -45,7 +47,7 @@ func (j *Bot) callbackLoop() {
 }
 
 func (j *Bot) receiveLoop() {
-	var message *Message
+	var message *xirc.Message
 	reader := bufio.NewReader(j.connection)
 
 	for {
@@ -55,7 +57,12 @@ func (j *Bot) receiveLoop() {
 			break
 		}
 
-		message = ParseMessage(line)
+		message = xirc.ParseMessage(line)
+		if err != nil {
+			log.Printf("\x1b[31m!!\x1b[0m %s\n", err)
+			break
+		}
+
 		log.Printf("\x1b[34m<<\x1b[0m %s\n", message)
 		j.receive <- message
 	}
@@ -73,7 +80,7 @@ func (j *Bot) sendLoop() {
 
 func (j *Bot) Connect() (err error) {
 	j.send = make(chan string, 32)
-	j.receive = make(chan *Message, 32)
+	j.receive = make(chan *xirc.Message, 32)
 
 	j.AddCallback("266", j.raw266)
 	j.AddCallback("433", j.nickInUse)
@@ -85,6 +92,7 @@ func (j *Bot) Connect() (err error) {
 	} else {
 		j.connection, err = net.Dial("tcp", j.Address)
 	}
+
 	if err != nil {
 		return
 	}

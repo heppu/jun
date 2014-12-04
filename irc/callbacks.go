@@ -1,6 +1,8 @@
 package irc
 
-type Callback func(*Message)
+import xirc "github.com/sorcix/irc"
+
+type Callback func(*xirc.Message)
 
 func (j *Bot) AddCallback(name string, cb Callback) {
 	if _, ok := j.callbacks[name]; ok {
@@ -10,21 +12,21 @@ func (j *Bot) AddCallback(name string, cb Callback) {
 	}
 }
 
-func (j *Bot) raw266(message *Message) {
+func (j *Bot) raw266(message *xirc.Message) {
 	for _, channel := range j.Channels {
 		j.Join(channel)
 	}
 }
 
-func (j *Bot) pingBack(message *Message) {
-	j.Pong(message.Final)
+func (j *Bot) pingBack(message *xirc.Message) {
+	j.Pong(message.Trailing)
 }
 
-func (j *Bot) nickInUse(message *Message) {
+func (j *Bot) nickInUse(message *xirc.Message) {
 	j.Nickname = j.Nickname + "_"
 	j.Nick(j.Nickname)
 }
 
-func (j *Bot) nickChange(message *Message) {
-	j.Nickname = message.Final
+func (j *Bot) nickChange(message *xirc.Message) {
+	j.Nickname = message.Trailing
 }
