@@ -2,14 +2,14 @@ package main
 
 import (
 	"crypto/tls"
-	"github.com/FSX/jun/irc"
+	"github.com/FSX/jun/client"
 	"github.com/FSX/jun/plugins/pokemon"
 	"os"
 	"os/signal"
 )
 
 func main() {
-	e := irc.New(
+	e := client.New(
 		"irc.rizon.net:9999",
 		"Somerandomnickname",
 		[]string{"#somerandomchannel"},
@@ -19,7 +19,7 @@ func main() {
 	e.Connect()
 
 	// Graceful shutdown for Ctrl+C
-	go func(e *irc.Bot) {
+	go func(e *client.Client) {
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, os.Interrupt)
 		<-c

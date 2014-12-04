@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/FSX/jun/irc"
-	xirc "github.com/sorcix/irc"
+	"github.com/FSX/jun/client"
+	"github.com/sorcix/irc"
 )
 
 // https://en.wikiquote.org/wiki/Pok%C3%A9mon
@@ -66,11 +66,11 @@ var quotes []string = []string{
 	"“There's an ongoing debate in the academic community as to whether these Pidgey represent evolution, devolution, or some mutated strain.” — Prof. Oak",
 }
 
-func PokemonQuotes(j *irc.Bot) {
+func PokemonQuotes(j *client.Client) {
 	rand.Seed(time.Now().UnixNano())
 	l := len(quotes)
 
-	j.AddCallback("PRIVMSG", func(message *xirc.Message) {
+	j.AddCallback("PRIVMSG", func(message *irc.Message) {
 		if strings.HasPrefix(message.Trailing, "!pokemon") {
 			j.Privmsg(message.Params[0], quotes[rand.Intn(l)])
 		}

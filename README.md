@@ -1,11 +1,11 @@
 Jun
 ===
 
-Another IRC bot.
+Simple IRC client.
 
 Install with:
 
-    go get github.com/FSX/jun/irc
+    go get github.com/FSX/jun/client
     go get github.com/FSX/jun/plugins/pokemon
 
 And run the example with:

@@ -1,4 +1,4 @@
-package irc
+package client
 
 import (
 	"bufio"
@@ -6,10 +6,10 @@ import (
 	"log"
 	"net"
 
-	xirc "github.com/sorcix/irc"
+	"github.com/sorcix/irc"
 )
 
-type Bot struct {
+type Client struct {
 	Address   string
 	Nickname  string
 	Channels  []string
@@ -18,12 +18,12 @@ type Bot struct {
 	callbacks map[string][]Callback
 
 	connection net.Conn
-	send       chan string        // Messages to the server
-	receive    chan *xirc.Message // Messages from the server
+	send       chan string       // Messages to the server
+	receive    chan *irc.Message // Messages from the server
 }
 
-func New(address, nickname string, channels []string, tlsConfig *tls.Config) *Bot {
-	return &Bot{
+func New(address, nickname string, channels []string, tlsConfig *tls.Config) *Client {
+	return &Client{
 		Address:    address,
 		Nickname:   nickname,
 		Channels:   channels,
@@ -36,7 +36,7 @@ func New(address, nickname string, channels []string, tlsConfig *tls.Config) *Bo
 	}
 }
 
-func (j *Bot) callbackLoop() {
+func (j *Client) callbackLoop() {
 	for message := range j.receive {
 		if callbacks, ok := j.callbacks[message.Command]; ok {
 			for _, cb := range callbacks {
@@ -46,8 +46,8 @@ func (j *Bot) callbackLoop() {
 	}
 }
 
-func (j *Bot) receiveLoop() {
-	var message *xirc.Message
+func (j *Client) receiveLoop() {
+	var message *irc.Message
 	reader := bufio.NewReader(j.connection)
 
 	for {
@@ -57,7 +57,7 @@ func (j *Bot) receiveLoop() {
 			break
 		}
 
-		message = xirc.ParseMessage(line)
+		message = irc.ParseMessage(line)
 		if err != nil {
 			log.Printf("\x1b[31m!!\x1b[0m %s\n", err)
 			break
@@ -68,7 +68,7 @@ func (j *Bot) receiveLoop() {
 	}
 }
 
-func (j *Bot) sendLoop() {
+func (j *Client) sendLoop() {
 	for data := range j.send {
 		if _, err := j.connection.Write([]byte(data + "\r\n")); err != nil {
 			log.Printf("\x1b[31m!!\x1b[0m %s\n", err)
@@ -78,9 +78,9 @@ func (j *Bot) sendLoop() {
 	}
 }
 
-func (j *Bot) Connect() (err error) {
+func (j *Client) Connect() (err error) {
 	j.send = make(chan string, 32)
-	j.receive = make(chan *xirc.Message, 32)
+	j.receive = make(chan *irc.Message, 32)
 
 	j.AddCallback("266", j.raw266)
 	j.AddCallback("433", j.nickInUse)
@@ -107,7 +107,7 @@ func (j *Bot) Connect() (err error) {
 	return
 }
 
-func (j *Bot) Disconnect() {
+func (j *Client) Disconnect() {
 	j.connection.Close()
 	close(j.send)
 	close(j.receive)
