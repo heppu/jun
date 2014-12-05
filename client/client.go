@@ -58,10 +58,6 @@ func (j *Client) receiveLoop() {
 		}
 
 		message = irc.ParseMessage(line)
-		if err != nil {
-			log.Printf("\x1b[31m!!\x1b[0m %s\n", err)
-			break
-		}
 
 		log.Printf("\x1b[34m<<\x1b[0m %s\n", message)
 		j.receive <- message
