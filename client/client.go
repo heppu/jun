@@ -3,7 +3,7 @@ package client
 import (
 	"bufio"
 	"crypto/tls"
-	"log"
+	// "log"
 	"net"
 
 	"github.com/sorcix/irc"
@@ -17,6 +17,8 @@ type Client struct {
 	Quit      chan bool
 	callbacks map[string][]Callback
 
+	Error chan error
+
 	connection net.Conn
 	send       chan string       // Messages to the server
 	receive    chan *irc.Message // Messages from the server
@@ -29,6 +31,7 @@ func New(address, nickname string, channels []string, tlsConfig *tls.Config) *Cl
 		Channels:   channels,
 		TlsConfig:  tlsConfig,
 		Quit:       make(chan bool),
+		Error:      make(chan error, 32),
 		callbacks:  make(map[string][]Callback),
 		connection: nil,
 		send:       nil,
@@ -38,6 +41,11 @@ func New(address, nickname string, channels []string, tlsConfig *tls.Config) *Cl
 
 func (j *Client) callbackLoop() {
 	for message := range j.receive {
+		if callbacks, ok := j.callbacks["*"]; ok {
+			for _, cb := range callbacks {
+				cb(message)
+			}
+		}
 		if callbacks, ok := j.callbacks[message.Command]; ok {
 			for _, cb := range callbacks {
 				cb(message)
@@ -47,29 +55,24 @@ func (j *Client) callbackLoop() {
 }
 
 func (j *Client) receiveLoop() {
-	var message *irc.Message
+	// var message *irc.Message
 	reader := bufio.NewReader(j.connection)
 
 	for {
 		line, err := reader.ReadString('\n')
 		if err != nil {
-			log.Printf("\x1b[31m!!\x1b[0m %s\n", err)
+			j.Error <- err
 			break
 		}
 
-		message = irc.ParseMessage(line)
-
-		log.Printf("\x1b[34m<<\x1b[0m %s\n", message)
-		j.receive <- message
+		j.receive <- irc.ParseMessage(line)
 	}
 }
 
 func (j *Client) sendLoop() {
 	for data := range j.send {
 		if _, err := j.connection.Write([]byte(data + "\r\n")); err != nil {
-			log.Printf("\x1b[31m!!\x1b[0m %s\n", err)
-		} else {
-			log.Printf("\x1b[32m>>\x1b[0m %s\n", data)
+			j.Error <- err
 		}
 	}
 }
@@ -105,7 +108,4 @@ func (j *Client) Connect() (err error) {
 
 func (j *Client) Disconnect() {
 	j.connection.Close()
-	close(j.send)
-	close(j.receive)
-	j.Quit <- true
 }
