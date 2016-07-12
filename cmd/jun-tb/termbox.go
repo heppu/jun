@@ -1,7 +1,5 @@
 package main
 
-import "github.com/nsf/termbox-go"
-
 func termboxEvent(ev chan termbox.Event) {
 	for {
 		ev <- termbox.PollEvent()

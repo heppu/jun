@@ -1,10 +1,6 @@
 package main
 
-import (
-	"crypto/tls"
-
-	"github.com/nsf/termbox-go"
-)
+import "crypto/tls"
 
 func main() {
 	msgBuffer := NewMessageBuffer(2000)

@@ -3,7 +3,6 @@ package client
 import (
 	"bufio"
 	"crypto/tls"
-	"log"
 	"net"
 	"time"
 

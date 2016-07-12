@@ -2,10 +2,11 @@ package main
 
 import (
 	"crypto/tls"
-	"github.com/FSX/jun/client"
-	"github.com/FSX/jun/plugins/pokemon"
 	"os"
 	"os/signal"
+
+	"github.com/FSX/jun/client"
+	"github.com/FSX/jun/plugins/pokemon"
 )
 
 func main() {

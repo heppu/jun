@@ -2,8 +2,9 @@ package relay
 
 import (
 	"fmt"
-	"github.com/FSX/jun/irc"
 	"strings"
+
+	"github.com/FSX/jun/irc"
 )
 
 func RelayChannels(a *irc.Bot, b *irc.Bot, serverA, channelA, serverB, channelB string) {
