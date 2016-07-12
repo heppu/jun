@@ -3,8 +3,9 @@ package client
 import (
 	"bufio"
 	"crypto/tls"
-	// "log"
+	"log"
 	"net"
+	"time"
 
 	"github.com/sorcix/irc"
 )
@@ -13,7 +14,8 @@ type Client struct {
 	Address   string
 	Nickname  string
 	Channels  []string
-	TlsConfig *tls.Config // http://golang.org/pkg/crypto/tls/#Config
+	TlsConfig *tls.Config    // http://golang.org/pkg/crypto/tls/#Config
+	Delay     *time.Duration // Delay to avoid exess flood
 	Quit      chan bool
 	callbacks map[string][]Callback
 
@@ -24,12 +26,13 @@ type Client struct {
 	receive    chan *irc.Message // Messages from the server
 }
 
-func New(address, nickname string, channels []string, tlsConfig *tls.Config) *Client {
+func New(address, nickname string, channels []string, tlsConfig *tls.Config, delay *time.Duration) *Client {
 	return &Client{
 		Address:    address,
 		Nickname:   nickname,
 		Channels:   channels,
 		TlsConfig:  tlsConfig,
+		Delay:      delay,
 		Quit:       make(chan bool),
 		Error:      make(chan error, 32),
 		callbacks:  make(map[string][]Callback),
@@ -73,6 +76,9 @@ func (j *Client) sendLoop() {
 	for data := range j.send {
 		if _, err := j.connection.Write([]byte(data + "\r\n")); err != nil {
 			j.Error <- err
+		}
+		if j.Delay != nil {
+			time.Sleep(*j.Delay)
 		}
 	}
 }
